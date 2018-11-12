@@ -20,8 +20,7 @@ class FlatbuffersConan(ConanFile):
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = "shared=False", "fPIC=True"
     generators = "cmake"
-    exports = "LICENSE.txt"
-    exports_sources = ["CMake/*", "include/*", "src/*", "grpc/*", "CMakeLists.txt", "conan/CMakeLists.txt"]
+    scm = { "type": "git", "url": "auto", "revision": "auto" }
 
     def source(self):
         """Wrap the original CMake file to call conan_basic_setup
@@ -72,3 +71,4 @@ class FlatbuffersConan(ConanFile):
         """
         self.cpp_info.libs = tools.collect_libs(self)
         self.user_info.flatc = os.path.join(self.package_folder, "bin", "flatc")
+        self.env_info.flatbuffers_DIR = self.package_folder
