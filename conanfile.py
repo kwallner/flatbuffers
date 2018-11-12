@@ -21,6 +21,7 @@ class FlatbuffersConan(ConanFile):
     default_options = "shared=False", "fPIC=True"
     generators = "cmake"
     scm = { "type": "git", "url": "auto", "revision": "auto" }
+    no_copy_source = True
 
     def source(self):
         """Wrap the original CMake file to call conan_basic_setup
@@ -49,12 +50,11 @@ class FlatbuffersConan(ConanFile):
         """
         cmake = self.configure_cmake()
         cmake.build()
-
+        cmake.install()
+         
     def package(self):
         """Copy Flatbuffers' artifacts to package folder
         """
-        cmake = self.configure_cmake()
-        cmake.install()
         self.copy(pattern="LICENSE.txt", dst="licenses")
         self.copy(pattern="flathash*", dst="bin", src="bin")
         self.copy(pattern="flatc*", dst="bin", src="bin")
@@ -65,10 +65,11 @@ class FlatbuffersConan(ConanFile):
             elif self.settings.compiler == "gcc":
                 shutil.move(os.path.join(self.package_folder, "lib", "lib%s.dll" % self.name),
                             os.path.join(self.package_folder, "bin", "lib%s.dll" % self.name))
-
+        self.copy(pattern="*", src="CMake", dst="lib/cmake/flatbuffers")
+        
     def package_info(self):
         """Collect built libraries names and solve flatc path.
         """
         self.cpp_info.libs = tools.collect_libs(self)
         self.user_info.flatc = os.path.join(self.package_folder, "bin", "flatc")
-        self.env_info.flatbuffers_DIR = self.package_folder
+        self.env_info.FlatBuffers_DIR = os.path.join(self.package_folder, "lib", "cmake", "flatbuffers")
